@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epoch Converter | Timestamp Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+        }
+        .result-box {
+            transition: all 0.3s ease;
+        }
+        .result-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            background-color: #4f46e5;
+        }
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+        .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <div class="gradient-bg text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold">Epoch Converter</h1>
+                    <p class="text-blue-100 mt-1">Convert between Unix timestamps and human-readable dates</p>
+                </div>
+                <div class="hidden md:block">
+                    <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">v2.0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Current Timestamp</h2>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 bg-gray-50 p-4 rounded-lg result-box">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Unix Timestamp</p>
+                                <p id="currentTimestamp" class="text-2xl font-mono font-bold text-gray-800">Loading...</p>
+                            </div>
+                            <button onclick="copyToClipboard('currentTimestamp')" class="copy-btn bg-indigo-500 text-white p-2 rounded-lg">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-gray-50 p-4 rounded-lg result-box">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-1">Human-Readable Date</p>
+                                <p id="currentDate" class="text-2xl font-semibold text-gray-800">Loading...</p>
+                            </div>
+                            <button onclick="copyToClipboard('currentDate')" class="copy-btn bg-indigo-500 text-white p-2 rounded-lg">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Timestamp to Date</h2>
+                    <div class="mb-4">
+                        <label for="timestampInput" class="block text-sm font-medium text-gray-700 mb-1">Unix Timestamp (seconds)</label>
+                        <input type="text" id="timestampInput" placeholder="e.g. 1633046400" 
+                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <button onclick="convertTimestampToDate()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition">
+                        Convert to Date
+                    </button>
+                    
+                    <div id="timestampResult" class="mt-6 hidden">
+                        <div class="bg-gray-50 p-4 rounded-lg result-box">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Converted Date</p>
+                                    <p id="convertedDate" class="text-xl font-semibold text-gray-800"></p>
+                                </div>
+                                <button onclick="copyToClipboard('convertedDate')" class="copy-btn bg-indigo-500 text-white p-2 rounded-lg">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Date to Timestamp</h2>
+                    <div class="mb-4">
+                        <label for="dateInput" class="block text-sm font-medium text-gray-700 mb-1">Select Date & Time</label>
+                        <input type="datetime-local" id="dateInput" 
+                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <button onclick="convertDateToTimestamp()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition">
+                        Convert to Timestamp
+                    </button>
+                    
+                    <div id="dateResult" class="mt-6 hidden">
+                        <div class="bg-gray-50 p-4 rounded-lg result-box">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Unix Timestamp</p>
+                                    <p id="convertedTimestamp" class="text-xl font-mono font-bold text-gray-800"></p>
+                                </div>
+                                <button onclick="copyToClipboard('convertedTimestamp')" class="copy-btn bg-indigo-500 text-white p-2 rounded-lg">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">About Epoch Time</h2>
+                <div class="prose max-w-none text-gray-700">
+                    <p>Unix time (also known as Epoch time, POSIX time, or Unix timestamp) is a system for describing a point in time. It is the number of seconds that have elapsed since the Unix epoch (00:00:00 UTC on 1 January 1970).</p>
+                    
+                    <h3 class="mt-4 text-lg font-medium">Common Uses:</h3>
+                    <ul class="list-disc pl-5 mt-2">
+                        <li>Timestamps in databases and log files</li>
+                        <li>Measuring time intervals in programming</li>
+                        <li>API authentication and expiration</li>
+                        <li>File metadata and version control</li>
+                    </ul>
+                    
+                    <h3 class="mt-4 text-lg font-medium">Did You Know?</h3>
+                    <p>The Unix timestamp will reach 2,147,483,647 (2^31 - 1) on <strong>19 January 2038</strong>, which may cause the "Year 2038 problem" for systems storing time as a 32-bit signed integer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2023 Epoch Converter Tool. All rights reserved.</p>
+            <p class="text-gray-400 text-sm mt-2">Built with HTML, CSS, and JavaScript</p>
+        </div>
+    </footer>
+
+    <script>
+        // Update current timestamp and date
+        function updateCurrentTime() {
+            const now = new Date();
+            const timestamp = Math.floor(now.getTime() / 1000);
+            
+            document.getElementById('currentTimestamp').textContent = timestamp;
+            document.getElementById('currentDate').textContent = now.toLocaleString();
+        }
+        
+        // Initialize and update every second
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+        
+        // Convert timestamp to date
+        function convertTimestampToDate() {
+            const timestampInput = document.getElementById('timestampInput').value.trim();
+            
+            if (!timestampInput) {
+                alert('Please enter a timestamp');
+                return;
+            }
+            
+            const timestamp = parseInt(timestampInput);
+            
+            if (isNaN(timestamp)) {
+                alert('Please enter a valid number');
+                return;
+            }
+            
+            const date = new Date(timestamp * 1000);
+            const formattedDate = date.toLocaleString();
+            
+            document.getElementById('convertedDate').textContent = formattedDate;
+            document.getElementById('timestampResult').classList.remove('hidden');
+        }
+        
+        // Convert date to timestamp
+        function convertDateToTimestamp() {
+            const dateInput = document.getElementById('dateInput').value;
+            
+            if (!dateInput) {
+                alert('Please select a date and time');
+                return;
+            }
+            
+            const date = new Date(dateInput);
+            const timestamp = Math.floor(date.getTime() / 1000);
+            
+            document.getElementById('convertedTimestamp').textContent = timestamp;
+            document.getElementById('dateResult').classList.remove('hidden');
+        }
+        
+        // Copy to clipboard function
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show copied notification
+                const originalText = element.textContent;
+                element.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    element.textContent = originalText;
+                }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+        
+        // Set current date/time as default in date picker
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            // Format for datetime-local input (YYYY-MM-DDTHH:MM)
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            document.getElementById('dateInput').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        });
+    </script>
+</body>
+</html>
